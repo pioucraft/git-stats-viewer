@@ -1,1 +1,4 @@
-// place files you want to import through the `$lib` alias in this folder.
+import { simpleGit } from "simple-git";
+
+// or split out the baseDir, supported for backward compatibility
+export const git = simpleGit("../assimly", { binary: "git" });
