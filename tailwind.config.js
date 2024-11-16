@@ -1,10 +1,26 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./src/**/*.{html,js,svelte,ts}'],
 
+import { skeleton } from "@skeletonlabs/tw-plugin";
+import { join } from "path";
+
+const config = {
+  darkMode: "media",
+  content: [
+    "./src/**/*.{html,js,svelte,ts}",
+    join(
+      require.resolve("@skeletonlabs/skeleton"),
+      "../**/*.{html,js,svelte,ts}",
+    ),
+  ],
   theme: {
-    extend: {}
+    extend: {},
   },
-
-  plugins: []
+  plugins: [
+    // 4. Append the Skeleton plugin (after other plugins)
+    skeleton({
+      themes: { preset: ["wintry"] },
+    }),
+  ],
 };
+
+export default config;

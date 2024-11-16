@@ -5,17 +5,24 @@ export async function load() {
 
   for (let i = 0; i < logs.all.length; i++) {
     // C'EST DéCALé !!!!! NON, il mets les différences du commit par rapport au HEAD
-    let diff = (await git.diff([logs.all[i].hash, "--shortstat"])).split(", ");
-    console.log(logs.all[i].hash);
-    console.log(diff);
-    diff.forEach((dif) => {
-      if (dif.includes("changed"))
-        logs.all[i].filesChanged = Number(diff[0].trim().split(" ")[0]);
-      if (dif.includes("insertion"))
-        logs.all[i].insertions = Number(diff[1].trim().split(" ")[0]);
-      if (dif.includes("deletion"))
-        logs.all[i].deletions = Number(diff[2].trim().split(" ")[0]);
-    });
+    try {
+      let diff = (
+        await git.diff([
+          `${logs.all[i].hash}^`,
+          `${logs.all[i].hash}`,
+          "--shortstat",
+        ])
+      ).split(", ");
+
+      diff.forEach((dif) => {
+        if (dif.includes("changed"))
+          logs.all[i].filesChanged = Number(dif.trim().split(" ")[0]);
+        if (dif.includes("insertion"))
+          logs.all[i].insertions = Number(dif.trim().split(" ")[0]);
+        if (dif.includes("deletion"))
+          logs.all[i].deletions = Number(dif.trim().split(" ")[0]);
+      });
+    } catch (err) {}
   }
 
   logs = JSON.stringify(logs);
