@@ -1,7 +1,7 @@
 import { git } from "$lib/index";
 
 export async function load() {
-  let logs = await git.log();
+  let logs = await git.log(["--no-merges"]);
 
   for (let i = 0; i < logs.all.length; i++) {
     // C'EST DéCALé !!!!! NON, il mets les différences du commit par rapport au HEAD
