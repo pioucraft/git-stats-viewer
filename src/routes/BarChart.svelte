@@ -2,7 +2,6 @@
 <script>
     import * as d3 from "d3";
     import { onMount } from "svelte";
-
     export let data = [
         { label: "A", value: 10 },
         { label: "B", value: 20 },
@@ -14,17 +13,14 @@
     let marginTop = 20;
     let marginRight = 150;
     let marginBottom = 40;
-    let marginLeft = 120; // Increased left margin to accommodate labels
-
+    let marginLeft = 120;
     let svg;
 
     onMount(() => {
         width = document.body.clientWidth;
-
         let innerWidth = width - marginLeft - marginRight;
         let innerHeight = height - marginTop - marginBottom;
 
-        // Swap x and y scales
         let yScale = d3
             .scaleBand()
             .domain(data.map((d) => d.label))
@@ -35,7 +31,21 @@
             .scaleLinear()
             .domain([0, d3.max(data, (d) => d.value)])
             .range([0, innerWidth]);
+
         const svgElement = d3.select(svg);
+
+        // Create tooltip div
+        const tooltip = d3
+            .select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("visibility", "hidden")
+            .style("background-color", "white")
+            .style("border", "1px solid #ddd")
+            .style("padding", "5px")
+            .style("border-radius", "3px")
+            .style("font-size", "12px");
 
         // Create axes
         const xAxis = d3.axisBottom(xScale);
@@ -66,7 +76,7 @@
             // Remove old bars
             bars.exit().remove();
 
-            // Add new bars
+            // Add new bars with hover interactions
             bars.enter()
                 .append("rect")
                 .merge(bars)
@@ -76,11 +86,41 @@
                 .attr("y", (d) => yScale(d.label))
                 .attr("width", (d) => xScale(d.value))
                 .attr("height", yScale.bandwidth())
-                .attr("fill", "steelblue");
+                .attr("fill", "steelblue")
+                .selection() // End transition and get selection
+                .on("mouseover", function (event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr("fill", "#4682b4cc"); // Lighter blue on hover
+
+                    tooltip
+                        .style("visibility", "visible")
+                        .style("color", "black")
+                        .text(`Value: ${d.value}`);
+                })
+                .on("mousemove", function (event) {
+                    tooltip
+                        .style("top", event.pageY - 10 + "px")
+                        .style("left", event.pageX + 10 + "px");
+                })
+                .on("mouseout", function () {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr("fill", "steelblue");
+
+                    tooltip.style("visibility", "hidden");
+                });
         }
 
         // Initial render
         updateBars();
+
+        // Cleanup function to remove tooltip when component is destroyed
+        return () => {
+            tooltip.remove();
+        };
     });
 </script>
 
