@@ -61,11 +61,15 @@
         stats.total.linesAdded += log.insertions ?? 0;
         stats.total.linesDeleted += log.deletions ?? 0;
         stats.total.linesOfCode.forEach((stat) => {
-            if (new Date(stat.date).getTime() >= new Date(log.date).getTime())
+            let currentDate = new Date(stat.date);
+            currentDate.setDate(new Date(stat.date).getDate() + 1);
+            if (currentDate.getTime() >= new Date(log.date).getTime())
                 stat.linesOfCode +=
                     (log.insertions ?? 0) - (log.deletions ?? 0);
         });
     });
+    console.log(stats);
+    console.log(logs);
 
     onMount(() => {
         const margin = { top: 20, right: 40, bottom: 40, left: 60 };
